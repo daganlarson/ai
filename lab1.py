@@ -66,7 +66,10 @@ def triplesum(L,target):
     ''' given a list L of numbers, return True if some triplet of numbers in L sums to the target. For example triplesum([1,2,3,5],8) returns True (since 8=1+2+5), but triplesum([1,2,3,5],7) returns False since no three numbers in L sum to 7.   
     '''
     ### you fill this in
+    for x in range(len(L)):
+        for y in range(x, len(L)):
+            for z in range(x, len(L)):
+                if L[x] + L[y] + L[z] == target:
+                    return True
 
-def doublesum(L, target):
-    for x in range(len(L))
-
+    return False
