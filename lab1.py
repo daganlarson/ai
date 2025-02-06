@@ -1,7 +1,10 @@
 def compute_difference(a,b):
-	return a-b
     ''' returns the difference of a and b'''
     ## you fill this in
+    return a-b
+
+def test_computer_difference():
+    assert compute_difference(2, 1) == 1
 
 def common_divisors(a,b):
     ''' return the common divisors of a and b'''
@@ -9,38 +12,46 @@ def common_divisors(a,b):
     if a > b:
         max = a
         min = b
-    else
+    else:
         max = b
         min = a
 
-    for i in range(min):
+    for i in range(1, min):
         if a % i == 0 and b % i == 0:
-            divisors.append(i)
+            divisors += i
 
     return i
+
+def test_common_divisors():
+    assert common_divisors(100, 10) == [1,2,5,10]
 
     
 def reverse_string(s):
     '''reverse a string, e.g., reverse_string('abcd') returns 'dcba'''
     ## you fill this in
-    return s.reverse()
+    return reversed(s)
+
+def test_reverse_string():
+    assert reverse_string("abc") == "cba"
     
-def drop_odds(L):
-	
+def drop_odds(L):	
     ''' remove the odd numbers from the list L, e.g., drop_odds([1,2,3,4]) returns [2,4]'''
     ## you fill this in
-	for num in L:
-		if num % 0 != 0:
-			L.remove(num)
+    for num in L:
+        if num % 2 != 0:
+            L.remove(num)
+
+def test_drop_odds():
+    assert drop_odds([1,2,3,4,5,6,7,8,9]) == [2,4,6,8]
 	
 
 def fibonacci(i):
     '''compute the i-th Fibonacci number: F[i] = F[i-2] + F[i-1], F[0] = F[1] = 1'''
     ## you fill this in
-	if i == 0 or i == 1:
-		return 1
-	else:
-		return fibonacci(i-2) + fibonacci(i-1)
+    if i == 0 or i == 1:
+        return 1
+    else:
+        return fibonacci(i-2) + fibonacci(i-1)
 
 def square(n):
     '''print out an nxn square using '*' characters, e.g., square(3):
@@ -50,17 +61,18 @@ def square(n):
     '''
     ## you fill this in
     for row in range(len(n)):
-    	for col in range(len(n)):
-		print("*")
-	print("\n")
+        for col in range(len(n)):
+            print("*")
+              
+        print('\n')
 
 def distinct(L):
     '''return True if all elements of list L are unique, otherwise return
 False if at least one element is repeated. '''
     ## you fill this in
-	if len(set(L)) == len(L):
-    		return True
-	return False
+    if len(set(L)) == len(L):
+        return True
+    return False
 
 def triplesum(L,target):
     ''' given a list L of numbers, return True if some triplet of numbers in L sums to the target. For example triplesum([1,2,3,5],8) returns True (since 8=1+2+5), but triplesum([1,2,3,5],7) returns False since no three numbers in L sum to 7.   
