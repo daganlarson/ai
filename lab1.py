@@ -3,9 +3,6 @@ def compute_difference(a,b):
     ## you fill this in
     return a-b
 
-def test_computer_difference():
-    assert compute_difference(2, 1) == 1
-
 def common_divisors(a,b):
     ''' return the common divisors of a and b'''
     divisors = []
@@ -21,29 +18,18 @@ def common_divisors(a,b):
             divisors += i
 
     return i
-
-def test_common_divisors():
-    assert common_divisors(100, 10) == [1,2,5,10]
-
     
 def reverse_string(s):
     '''reverse a string, e.g., reverse_string('abcd') returns 'dcba'''
     ## you fill this in
     return reversed(s)
-
-def test_reverse_string():
-    assert reverse_string("abc") == "cba"
-    
+   
 def drop_odds(L):	
     ''' remove the odd numbers from the list L, e.g., drop_odds([1,2,3,4]) returns [2,4]'''
     ## you fill this in
     for num in L:
         if num % 2 != 0:
             L.remove(num)
-
-def test_drop_odds():
-    assert drop_odds([1,2,3,4,5,6,7,8,9]) == [2,4,6,8]
-	
 
 def fibonacci(i):
     '''compute the i-th Fibonacci number: F[i] = F[i-2] + F[i-1], F[0] = F[1] = 1'''

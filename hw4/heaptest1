@@ -1,0 +1,35 @@
+# create empty heap (this is already done in the command interpreter)
+c
+
+# insert 4 items, printing the heap after each insert
+i 491
+t
+i 122
+t
+i 245
+t
+i 474
+t
+
+# The following command tests minimum() 
+m
+
+# The following command tests decreaseKey(), decreaseing 491 to 111
+d 4 111
+t
+
+# extract mins (quitely after 1st) until empty, printing heap after each one
+e
+t
+-
+e
+t
+e
+t
+e
+t
+
+# attempt to extract min from empty heap
+e
+
+# end of test
