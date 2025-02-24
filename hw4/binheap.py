@@ -33,7 +33,7 @@ class BinHeap:
     def build_min_heap(self, n):
         #You implement this (needed for HeapSort)
         self.heap_size = n
-        for i in range(n/2, 0, -1):
+        for i in range(int(n/2), 0, -1):
             self.min_heapify(i)
 
     def insert(self, key):
@@ -92,10 +92,12 @@ class BinHeap:
     def min_heap_sort(self, n):
         # You implement this
         self.build_min_heap(n)
-        for i in range(n, 2, -1):
-            self.swap(self.A[1], self.A[i])
+        for i in range(n, 1, -1):
+            self.swap(i, 1)
             self.heap_size -= 1
             self.min_heapify(1)
-        
-        for j in range(0, n/2):
+
+        for j in range(int(n/2)):
             self.swap(j, n-j)
+
+    
