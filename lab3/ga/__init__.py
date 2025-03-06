@@ -41,7 +41,10 @@ class GA():
         self.crossover = crossover
         self.steps = steps
         self.generations = generations
+
+        self.startTime = time.time()
         self.rw = robby.World(10,10)
+        self.rw.graphicsEnabled = False
         self.rw.graphicsOff()
     
     def sessionFitness(self, s: Strategy):
@@ -127,21 +130,24 @@ class GA():
 
         avgFitness = sum(f) / len(f)
         return (avgFitness, f[self.popSize - 1], s[self.popSize - 1])
-
-
-    def rankSelection(self, strategy, index):
-        randint = int(random.randint(0, 199))
-        if randint < index:
-            print(randint, index, self.popSize)
-            return strategy
+    
+    def runGA(self):
+        for g in range(self.generations):
+            output = self.runGeneration()
+            if g % 10 == 0:
+                output = (g, output[0], output[1], output[2])
+                with open(f"GAoutput_{self.popSize}_{self.generations}_{self.crossover}_{self.startTime}.txt", 'a') as f:
+                    f.write(output[0], output[1], output[2], output[3])
+                
 
 
 def main():
-    ga = GA(popSize=200)
-    for g in range(500):
-        output = ga.runGeneration()
-        if g % 10 == 0:
-            print(g, output[0], output[1], output[2])
+    ga = GA()
+    ga.runGA()
+
+    ga2 = GA(popSize=300, generations=250)
+    ga2.runGA()
+    
 
 if __name__ == "__main__":
     main()
