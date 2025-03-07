@@ -33,19 +33,37 @@ def single_point_crossover(parent1: Strategy, parent2: Strategy):
     offspring1 = Strategy(parent1.genome[:loc] + parent2.genome[loc:])
     offspring2 = Strategy(parent2.genome[:loc] + parent1.genome[loc:])
     return (offspring1, offspring2)
+
+def uniform_crossover(parent1: Strategy, parent2: Strategy):
+    genome1 = ""
+    genome2 = ""
+
+    for i in range(243):
+        if random.randint(0,1) == 0:
+            genome1 += parent1.genome[i]
+            genome2 += parent2.genome[i]
+        else:
+            genome1 += parent2.genome[i]
+            genome2 += parent1.genome[i]
     
+    return (Strategy(genome1), Strategy(genome2))
+
 class GA():
-    def __init__(self, popSize=200, crossover=1, steps=200, generations=500):
+    def __init__(self, popSize=200, crossover=1, steps=200, generations=500, sessions=100, eltism=0.1):
         self.popSize = popSize
-        self.population = [Strategy() for x in range(popSize)]
-        self.crossover = crossover
         self.steps = steps
         self.generations = generations
+        self.crossover = crossover
+        self.sessions = sessions
+        self.elitism = eltism
 
-        self.startTime = time.time()
+        self.filename = f"output/GAoutput_{str(round(time.time()))[-4:]}.txt"
+
         self.rw = robby.World(10,10)
         self.rw.graphicsEnabled = False
         self.rw.graphicsOff()
+
+        self.population = [Strategy() for x in range(popSize)]
     
     def sessionFitness(self, s: Strategy):
         self.rw.distributeCans()
@@ -57,47 +75,15 @@ class GA():
             action = POSSIBLE_ACTIONS[actionIndex]
 
             fitness += self.rw.performAction(action)
-            
-            # This section checks to see if Robby is going in circles,
-            # and speeds up the simulation if a repetitive pattern of
-            # behavior is detected. It works reasonably well most of
-            # the time, but there is still some room for improvement.
-            '''
-            if not cycleDetected:
-                # skip after having detected a cycle
-                time.sleep(PAUSE)
-                state = [action, self.robbyRow, self.robbyCol, self._gridContents()]
-                if action != "MoveRandom":
-                    period = self._checkForCycle(state, history, CYCLE_LIMIT)
-                    if period > 0:
-                        #print "cycle of period %d detected" % period
-                        cycleDetected = True
-                        if period == 1:
-                            runFastUntil = i + FAST_STEPS/2
-                        else:
-                            runFastUntil = i + FAST_STEPS
-                history.append(state)
-            
-            elif self.graphicsEnabled and i > runFastUntil:
-                # disable graphics after running for FAST_STEPS
-                self.graphicsEnabled = False
-            if not self.rw.graphicsEnabled:
-                self.rw.graphicsEnabled = True
-                self.rw._updateGrid()
-            '''
-            # it's better for the demo method to return None instead of a
-            # reward value, so that students will be forced to write their
-            # own method to compute a strategy's cumulative reward.
            
         return fitness
     
     def strategyFitness(self, s: Strategy) -> int:
-        avgNum = 100
         totalFitness = 0
-        for x in range(avgNum):
+        for x in range(self.sessions):
             totalFitness += self.sessionFitness(s)
 
-        return totalFitness/avgNum
+        return totalFitness/self.sessions
     
     def sortByFitness(self, genomes : list[Strategy]):
         tuples = [(self.strategyFitness(g), g) for g in genomes]
@@ -116,14 +102,22 @@ class GA():
         
         #Offspring
         offspring = list[Strategy]()
+
+        #Elitism
+        offspring.extend(parents[self.popSize-round(self.elitism*self.popSize):])
+
         while len(offspring) < self.popSize:
             parent1 = parents[random.randrange(0, len(parents))]
             parent2 = parents[random.randrange(0, len(parents))]
-            offspring1, offspring2 = single_point_crossover(parent1, parent2)
-            offspring.extend([offspring1, offspring2])
 
-        for child in offspring:
-            child.mutate()
+            if random.randint(0,1) < self.crossover:
+                offspring1, offspring2 = single_point_crossover(parent1, parent2)
+            else:
+                offspring1, offspring2 = uniform_crossover(parent1, parent2)
+
+            offspring1.mutate()
+            offspring2.mutate()
+            offspring.extend([offspring1, offspring2])
         
         assert(len(offspring) == len(self.population))
         self.population = offspring
@@ -132,25 +126,20 @@ class GA():
         return (avgFitness, f[self.popSize - 1], s[self.popSize - 1])
     
     def runGA(self):
-        for g in range(self.generations):
+        with open(self.filename, "a") as f:
+            f.write(f"Population: {self.popSize}\nGenerations: {self.generations}\nSteps: {self.steps}\nSessions: {self.sessions}\nElitism: {self.elitism}\nCrossover: {self.crossover}\n")
+
+        for g in range(self.generations + 1):
             output = self.runGeneration()
             if g % 10 == 0:
                 output = (g, output[0], output[1], output[2])
-                with open(f"GAoutput_{self.popSize}_{self.generations}_{self.crossover}_{self.startTime}.txt", 'a') as f:
-                    f.write(output[0], output[1], output[2], output[3])
-                
-
+                with open(self.filename, 'a') as f:
+                    output = str(output[0]) + " " + str(output[1]) + " " + str(output[2]) + " " + str(output[3].genome) + "\n"
+                    f.write(output)
 
 def main():
     ga = GA()
     ga.runGA()
 
-    ga2 = GA(popSize=300, generations=250)
-    ga2.runGA()
-    
-
 if __name__ == "__main__":
     main()
-
-
-
