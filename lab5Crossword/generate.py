@@ -1,6 +1,10 @@
 import sys
 from crossword import *
 
+
+#import os
+#os.chdir("lab5Crossword")
+
 class CrosswordGenerator():
 
     def __init__(self, crossword):
@@ -96,16 +100,13 @@ class CrosswordGenerator():
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
-        
         for var, words in self.domains.items():
             remove = set[str]()
             for word in words:
                 if len(word) != var.length:
                     remove.add(word)
             words.difference_update(remove)
-
-                    
-            
+         
     def revise(self, X, Y):
         """
         Make variable `X` arc consistent with variable `Y`.
@@ -128,7 +129,6 @@ class CrosswordGenerator():
                 if not valid:
                     revised = True
                     self.domains.get(X).pop(word1)
-
         return revised
                 
     def ac3(self, arcs=None):
@@ -141,10 +141,17 @@ class CrosswordGenerator():
         return False if one or more domains end up empty.
         """
         if arcs is None:
+           
             arcs = []
             for d1 in self.domains:
                 for d2 in self.domains:
                     arcs.append((d1, d2))
+            '''
+            arcs = []
+            for var1 in self.domains.keys():
+                for var2 in self.crossword.neighbors(var1):
+                    arcs.append((var1, var2))
+             '''
 
         while len(arcs) != 0:
             Xi, Xj = arcs.pop()
@@ -155,11 +162,9 @@ class CrosswordGenerator():
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
-        for var, word in assignment.items():
-            if type(word) != str or len(word) != var.length():
-                return False
-        for word in assignment.values():
-            print(word)
+        for var in self.domains.keys():
+            if assignment.get(var) is None:
+                return False     
         return True
 
     def consistent(self, assignment):
@@ -169,9 +174,10 @@ class CrosswordGenerator():
         """
         for var1, word1 in assignment.items():
             for var2, word2 in assignment.items():
-                overlaps = self.crossword.overlaps(var1, var2)
-                if overlaps is not None and word1[overlaps[0]] != word2[overlaps[1]]:
-                    return False 
+                if var1 is not var2:
+                    overlaps = self.crossword.overlaps.get((var1, var2))
+                    if overlaps is not None and word1[overlaps[0]] != word2[overlaps[1]]:
+                        return False 
         return True
 
     def select_unassigned_variable(self, assignment: dict[Variable, str]):
@@ -182,12 +188,21 @@ class CrosswordGenerator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-        unassigned = []
+        unassigned = dict[Variable, list]()
         for var, words in self.domains.items():
             if assignment.get(var) is None:
-                unassigned.append((var, words))
+                unassigned[var] = words
 
-        return min(unassigned, lambda var, words: len(words))
+        #assert(self.assignment_complete(assignment) is False)
+        
+        min = None
+        for var, words in unassigned.items():
+            if min is None:
+                min = var 
+            elif len(words) < len(unassigned[min]):
+                min = var 
+
+        return min
 
     def backtrack(self, assignment: dict[Variable, str]):
         """
@@ -218,8 +233,7 @@ if __name__ == "__main__":
     # Check arguments
     if len(sys.argv) not in [3, 4]:
         sys.exit(f'Usage: {sys.argv[0]} structure words [output]')
-    import os
-    print(os.getcwd())
+    
     # Parse command-line arguments
     structure = sys.argv[1]
     words = sys.argv[2]
@@ -229,9 +243,6 @@ if __name__ == "__main__":
     crossword = Crossword(structure, words)
     generator = CrosswordGenerator(crossword)
     assignment = generator.solve()
-    
-    for word in assignment.values():
-        print(word)
 
     # Output result
     if assignment is None:
